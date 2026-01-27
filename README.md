@@ -8,7 +8,16 @@ Using similar existing calculations as used in North American sport with goals f
 This model uses data from Kaggle over every match result from the Premier League from the 1993-1994 season to the 2024-2025 season. This means that over 12,000 matches are analyzed in search for an ideal k-value for the Premier League. 
 
 ## Calculations
-In order to find the ideal k-value, we will manipulate the traditional Pythagorean Expectation equation to encapsulate wins, losses, and draws alike. As we are searching for points-share, a percentage value between [0,1], we can use a bimodial distribution with a logit link in a logistic regression-based GLM to find k as the slope of the of best fit when the logit of real points-percentage-earned vs. the log of (Goals For/Goals Against) is graphed. However, this traditional interpretation of the Pythagorean Expectation equation would use a simplistic view of how points are earned in the Premier League. For a team with a Goal Difference of 0, the log of Goals For/Goals Against would equal 1, meaning that the expected points-share of the total would be 50%. However, this is not the case: Indeed, most teams that earn 50% of the available points in a Premier League season would score more than they concede. As such, an intercept is necessary to account for how much a team's Goals For and Goals Against truly affect a match. 
+In order to find the ideal k-value, we will manipulate the traditional Pythagorean Expectation equation to encapsulate wins, losses, and draws alike. As we are searching for points-share, a percentage value between [0,1], we can use a bimodial distribution with a logit link in a logistic regression-based GLM to find k as the slope of the of best fit when the logit of real points-percentage-earned vs. the log of (Goals For/Goals Against) is graphed. 
+
+\logit(p) = k \log\!\left(\frac{GF}{GA}\right)
+
+However, this traditional interpretation of the Pythagorean Expectation equation would use a simplistic view of how points are earned in the Premier League. For a team with a Goal Difference of 0, the log of Goals For/Goals Against would equal 1, meaning that the expected points-share of the total would be 50%. However, this is not the case: Indeed, most teams that earn 50% of the available points in a Premier League season would score more than they concede. As such, an intercept is necessary to account for how much a team's Goals For and Goals Against truly affect a match. 
+
+\logit(p) = \alpha + k \log\!\left(\frac{GF}{GA}\right)
+
+## Accuracy
+The model has a mean absolute error of 3.587, approximately the points in 1 win. Furthermore, the bias, -0.00779, is negligible. The model is both strongly predictive of the points that a Premier League team should achieve in a season purely based on Goals For and Goals Against, while also being centered with little bias. 
 
 ## Conclusion
 This model finds a k-value for the Premier League of approximately 1.209. This means that for each time a team doubles their ratio of Goals For/Goals Against, they should expect that their points would increase by approximately 2.311. Here are some interesting takes from recent seasons of the Premier League: 
