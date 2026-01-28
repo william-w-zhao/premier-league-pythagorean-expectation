@@ -1,42 +1,38 @@
 # Calculating the Pythagorean Expectation for the Premier League
-The Pythagorean Expectation is a classic approach to analyzing the performance of teams in North American sports. First developed for Major League Baseball by STATS INC. as
-```math
-$$
+The Pythagorean Expectation is a classic approach to analyzing the performance of teams in North American sports, first developed for Major League Baseball by STATS INC. in the form
+
+```
 \text{Win Ratio} = \frac{(\text{Runs For})^{k}}{(\text{Runs For})^{k} + (\text{Runs Against})^{k}}
-$$
 ```
 
-with the k-value of 1.83, it was soon adapted into baseball (k = 13.91) as a valuable tool for judging the expected winning percentage of a certain team, and thus, yielding whether a certain team was over or underperforming. This project seeks to adapt the Pythagorean Expectation to the Premier League, fitting a new equation using points-share instead of win ratio to fit European football's unique system of 3 point wins, 1 point draws, and 0 point losses. 
+where the k-value changes to account for the different scoring data of each sport (MLB: 1.83, NBA: 13.91). The premise of the Pythagorean Expectation is that it provides an accurate model for the expected win-percentage of a team, thus allowing one to compare the expected wins vs. the actual wins and analyze the over or under-performance of a team. This project seeks to adapt the Pythagorean Expectation to the Premier League.
 
 ## Rationale
-Using similar existing calculations as used in North American sport with goals for and goals against substituted for runs for and runs against, it is possible to find the unique k value for the Premier League to find a rough estimate of the amount of points a team should be achieving each season. 
+Using similar existing calculations as used in North American sport with goals for and goals against substituted for runs for and runs against, it is possible to find the unique k value for the Premier League to find a rough estimate of the amount of points a team should be achieving each season. However, the most daunting challenge to fitting the Pythagorean Expectation to the Premier League comes from the unique nature of the sport: wins worth 3 points, draws worth 1 point, and losses worth none. The original Pythagorean Expectation does not account for the possibility of a draw, so it models only win-percentage. To account for the point-system and three-outcome nature of European football, it is necessary to calculate points-percentage rather than win-percentage, i.e. the percent of the total available points that a team should be expected to earn. Thus, the formula for this Pythagorean model becomes 
+
+```
+\text{Points Percentage} = \frac{(\text{Goals For})^{k}}{(\text{Goals Against})^{k} + (\text{Goals For})^{k}}
+```
 
 ## Data
-This model uses data from Kaggle over every match result from the Premier League from the 1993-1994 season to the 2024-2025 season. This means that over 12,000 matches are analyzed in search for an ideal k-value for the Premier League. 
+This model uses data from Kaggle over every match result from the Premier League from the 1993-1994 season to the 2024-2025 season. This means that over 12,000 matches and results are analyzed in search for an ideal k-value for the Premier League. 
 
 ## Calculations
-In order to find the ideal k-value, we will manipulate the traditional Pythagorean Expectation equation to encapsulate wins, losses, and draws alike. As we are searching for points-share, a percentage value between [0,1], we can use a binomial distribution with a logit link in a logistic regression-based GLM to find k as the slope of the of best fit when the logit of real points-percentage-earned vs. the log of (Goals For/Goals Against) is graphed. 
+In order to find the ideal Pythagorean k-value, we use logistic regression. As we are searching for points-share, a percentage value between [0,1], we use a binomial GLM with a logit link to fit the logit of real points-percentage-earned as a linear function of the log of (Goals For/Goals Against) is graphed. 
 
-```math
+```
 logit(p) = k \log\!\left(\frac{GF}{GA}\right)
 ```
 
-However, this traditional interpretation of the Pythagorean Expectation equation would use a simplistic view of how points are earned in the Premier League. For a team with a Goal Difference of 0, the log of Goals For/Goals Against would equal 1, meaning that the expected points-share of the total would be 50%. However, this is not the case: Indeed, most teams that earn 50% of the available points in a Premier League season would score more than they concede. As such, an intercept is necessary to account for how much a team's Goals For and Goals Against truly affect a match. 
+However, the traditional Pythagorean Expectation formula assumes that a team with an equal amount of goals scored and conceded would have a points-percentage of 50%. However, while this assumption does work for other sports, in the Premier League, a team that earns 50% of the points available (57), should expect to have a positive goal difference and safely be in the upper-half of the league table. As such, an intercept, represented by the variable alpha, is necessary to more accurately account for how goal difference affects points-based performance. 
 
-```math
+```
 logit(p) = \alpha + k \log\!\left(\frac{GF}{GA}\right)
 ```
 
+This model finds a k-value for the Premier League of approximately 1.209 and alpha value of -0.167.
+
 ## Accuracy
-This model has a calculated MAE of 3.587 and RMSE of 4.479, indicating that the model is accurate to a degree of 1-2 games. These accuracy measurement values are significant improvements on existing models, such as FootyStats', which holds a MAE and RMSE over the last three seasons of available data of 9.400 and 11.885 respectively. 
+This model has a calculated MAE of 3.587 and RMSE of 4.479, indicating that the model is accurate to a degree of 1-2 games. This represents a stark improvement over current expected-points calculations such as FootyStats' (MAE 9.400 and RMSE 11.885).
 
-This model reduces error by roughly 62% (61.8% in MAE and 62.3% in RMSE) and is around 2.6x more accurate. In direct significance, this model reduces the average error in calculated expected points by 6 to 7 points, a large difference in league position. As such, this model represents a striking improvement over existing predictors of expected points. 
-
-## Conclusion
-This model finds a k-value for the Premier League of approximately 1.209. This means that for each time a team doubles their ratio of Goals For/Goals Against, they should expect that their points would increase by approximately 2.311. Here are some interesting takes from recent seasons of the Premier League: 
-
-In 2024-2025, Liverpool and Arsenal were only separated by a mere point in expected points (xP) (76.866 vs. 75.859). However, Liverpool exceeded their xP while Arsenal disappointed, leading to the romp to the title for Liverpool. 
-
-In 2023-2024, Arsenal should've won the league with a xP nearly 2 higher than Manchester City (87.905 vs. 85.249). However, a large overperformance from Manchester City led to their title win. 
-
-In 2022-2023, Manchester City should've won the league significantly, with a xP that outstripped Arsenal's second place by nearly 9 points (85.477 vs. 76.116). In this season, the tables were flipped, with a large overperformance from Arsenal. 
+Using these statistics for comparison, this model represents a roughly 62% reduction in errors and 2.6x increase in accuracy over existing models. 
