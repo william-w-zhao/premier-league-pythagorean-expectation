@@ -21,7 +21,9 @@ logit(p) = \alpha + k \log\!\left(\frac{GF}{GA}\right)
 ```
 
 ## Accuracy
-The model has a mean absolute error of 3.587, approximately the points in 1 win. Furthermore, the bias, -0.00779, is negligible. The model is both strongly predictive of the points that a Premier League team should achieve in a season purely based on Goals For and Goals Against, while also being centered with little bias. 
+This model has a calculated MAE of 3.587 and RMSE of 4.479, indicating that the model is accurate to a degree of 1-2 games. These accuracy measurement values are significant improvements on existing models, such as FootyStats', which holds a MAE and RMSE over the last three seasons of available data of 9.400 and 11.885 respectively. 
+
+This model reduces error by roughly 62% (61.8% in MAE and 62.3% in RMSE) and is around 2.6x more accurate. In direct significance, this model reduces the average error in calculated expected points by 6 to 7 points, a large difference in league position. As such, this model represents a striking improvement over existing predictors of expected points. 
 
 ## Conclusion
 This model finds a k-value for the Premier League of approximately 1.209. This means that for each time a team doubles their ratio of Goals For/Goals Against, they should expect that their points would increase by approximately 2.311. Here are some interesting takes from recent seasons of the Premier League: 
